@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- package / versionCode / versionName come from app/build.gradle
+     (build.sh injects them for the manual pipeline). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Camera streams (MotionEye / MJPEG / RTSP). The only network use. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Floating camera windows when the accessibility service is off. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- App menu → Uninstall. -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- Optional, granted only via adb (pm grant): lets TV Launcher switch its own
+         accessibility + notification-access services on and keep them on. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <!-- Backups in the shared Downloads folder (survive "Clear storage"). Android 10+ needs
+         no permission to write there; 8-9 need these. MANAGE_EXTERNAL_STORAGE is optional
+         (adb appops) and only helps find an old backup after a reinstall. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+        <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <!-- Lets us list installed TV apps without QUERY_ALL_PACKAGES -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher"
+        android:banner="@drawable/banner"
+        android:theme="@style/Theme.Base"
+        android:supportsRtl="false"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
+        android:hardwareAccelerated="true">
+
+        <!-- The launcher itself. HOME + LEANBACK_LAUNCHER are both required:
+             HOME makes the system offer it as a home app (Home button), and
+             LEANBACK_LAUNCHER gives it an icon / Open entry point on TV.
+             Without both, the app has no icon and the system Open button
+             does nothing. This is the Oct 2026 lesson — do not remove
+             either filter. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:stateNotNeeded="true"
+            android:clearTaskOnLaunch="true"
+            android:excludeFromRecents="true"
+            android:resumeWhilePausing="true"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".SetupActivity" android:exported="false" />
+        <activity android:name=".SettingsActivity" android:exported="false" />
+        <activity android:name=".KeyMapActivity" android:exported="false" />
+        <activity android:name=".HomeGuardActivity" android:exported="false" />
+        <activity android:name=".LockdownActivity" android:exported="false" />
+        <activity android:name=".CamerasActivity" android:exported="false" />
+        <activity android:name=".CameraWallActivity" android:exported="false"
+            android:theme="@style/Theme.Base.Fullscreen"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize" />
+        <activity android:name=".OverlaySettingsActivity" android:exported="false" />
+        <activity android:name=".CustomizeActivity" android:exported="false" />
+        <activity android:name=".WatchActivity" android:exported="false" />
+        <activity android:name=".KeyTestActivity" android:exported="false" />
+        <activity android:name=".OverlayControlActivity" android:exported="false"
+            android:theme="@style/Theme.Base.Transparent"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:launchMode="singleInstance" />
+
+        <!-- Home guard: the accessibility service that bounces the stock
+             Google TV launcher back to TV Launcher Base. This is the layer
+             that gives the remote back when the default-home choice alone
+             does not stick. The user must enable it once in system Settings. -->
+        <service
+            android:name=".HomeGuardService"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- "What's playing" watcher: reads media-session titles/artwork for
+             Continue watching. Android requires notification access for that;
+             notification contents are never read. -->
+        <service
+            android:name=".MediaWatchService"
+            android:exported="true"
+            android:label="@string/media_watch_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- Device admin receiver: enables the optional device-owner lockdown.
+             Provision once via ADB, ideally before setup completes:
+             adb shell dpm set-device-owner com.moomoo.tvlauncherbase/.TvDeviceAdmin -->
+        <receiver
+            android:name=".TvDeviceAdmin"
+            android:exported="false"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Boot guard: re-asserts home ownership at every boot, launches
+             the launcher on power (when "Boot on Power" is on), and arms the
+             watchdog that notices if another launcher took over. -->
+        <receiver android:name=".BootReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.moomoo.tvlauncherbase.CHECK_HOME" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

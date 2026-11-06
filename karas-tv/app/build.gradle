@@ -1,0 +1,40 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.moomoo.tvlauncherbase'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.moomoo.tvlauncherbase"
+        minSdk 26
+        targetSdk 34
+        versionCode 18
+        versionName "2.8.1"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+// No dependencies on purpose: TV Launcher uses framework APIs only
+// (android.app, android.view, android.widget, TvInputManager), so it
+// builds with the manual pipeline in build.sh as well as in Studio.
+dependencies {
+}

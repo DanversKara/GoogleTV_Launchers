@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Plain base palette. If you are building a theme on top of this
+         base, change the values in LauncherTheme.kt, not here — the code
+         reads its colors from that one object. -->
+    <color name="base_bg">#0E1014</color>
+    <color name="base_text">#FFFFFF</color>
+    <color name="base_dim">#AAAAAA</color>
+</resources>

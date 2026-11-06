@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kara\'s TV</string>
+    <string name="guard_title">Home guard</string>
+    <string name="guard_on">Override stock launcher</string>
+    <string name="guard_desc">Keeps the Home button with Kara\'s TV (bounces Google TV\'s stock launcher), runs your remote-button remapping in every app, and shows floating camera windows over movies. Kara\'s TV does not read or collect what is on screen.</string>
+    <string name="guard_summary">Home guard, button remapper and floating cameras</string>
+    <string name="boot_on_power">Boot on Power</string>
+    <string name="boot_desc">Open Kara\'s TV automatically when the TV powers on.</string>
+    <string name="guard_enable_hint">The guard needs the accessibility service switched on in system Settings. Tap below, find Kara\'s TV in the list, and turn it on.</string>
+    <string name="open_accessibility_settings">Open accessibility settings</string>
+    <string name="guard_status_on">Home guard service is ON</string>
+    <string name="guard_status_off">Home guard service is OFF — open accessibility settings to enable it</string>
+    <string name="keymap_title">Remote buttons</string>
+    <string name="keymap_desc">Give any button a different job for a single, long or double press — overriding the stock Google TV behaviour in every app. Works for every button that reaches the accessibility service (use Learn a button to check one). Mappings pause inside Kara\'s TV\'s own screens, so you can always undo them. OK and the D-pad are never remapped.</string>
+    <string name="lockdown_title">Permanent fix (device owner)</string>
+    <string name="lockdown_desc">As device owner, Kara\'s TV pins itself as the persistent HOME handler and can hide the stock launcher packages. This usually only works before a Google account is added during setup — after setup, dpm set-device-owner fails.</string>
+    <string name="make_default">Make Kara\'s TV the default</string>
+    <string name="taken_over">Another launcher (usually Google TV’s) took over the Home button. Tap below to make Kara\'s TV the default again.</string>
+    <string name="taken_over_title">Home button was taken over</string>
+    <string name="taken_over_text">Tap to make Kara\'s TV the default again</string>
+    <string name="rename_input">Rename input</string>
+    <string name="input_name_hint">Name for this input, e.g. PS5</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_apps">No apps found</string>
+    <string name="apps_label">Apps</string>
+    <string name="inputs_label">Inputs</string>
+    <string name="settings_label">Settings</string>
+    <string name="media_watch_label">Kara\'s TV — What\'s playing (Continue watching)</string>
+</resources>
